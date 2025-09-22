@@ -8,7 +8,6 @@ This project provides clean, readable PyTorch implementations of modern large la
 ## Why This Project?
 
 - **Readability First**: Every implementation prioritizes clarity over performance optimization
-- **Educational Focus**: Extensive comments, documentation, and interactive notebooks
 - **Verified Correctness**: All implementations tested for numerical equivalence with HuggingFace models
 - **Modern Architectures**: Coverage of the latest innovations in transformer design
 - **Easy Navigation**: Consistent structure across all model implementations
