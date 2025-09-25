@@ -8,7 +8,7 @@ from llm_architectures.models.gemma3.args import gemma3_configs
 from llm_architectures.models.gemma3.model import Gemma3
 from llm_architectures.models.gemma3.state_dict_adapter import Gemma3Converter
 
-DEFAULT_CHECKPOINTS = {"gemma": "google/gemma-3-4b-it"}
+DEFAULT_CHECKPOINTS = {"gemma3": "google/gemma-3-4b-it"}
 
 
 @torch.no_grad()
@@ -28,14 +28,21 @@ def generate(model, tokenizer, prompt: str, max_tokens: int = 20):
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("model_name", choices=["gemma"])
+    parser.add_argument(
+        "model_name",
+        choices=["gemma3"],
+        help=f"Model to check. Currently available models are: {list(DEFAULT_CHECKPOINTS.keys())}",
+    )
     parser.add_argument("--checkpoint", type=str, default=None)
     parser.add_argument(
         "--prompt",
         type=str,
+        help="Prompt to generate from (default: Knowledge gained is potential, knowledge applied is)",
         default="Knowledge gained is potential, knowledge applied is",
     )
-    parser.add_argument("--max-new-tokens", type=int, default=5)
+    parser.add_argument(
+        "--max-new-tokens", type=int, default=10, help="Maximum number of new tokens to generate (default: 10)"
+    )
     args = parser.parse_args()
 
     checkpoint = args.checkpoint or DEFAULT_CHECKPOINTS[args.model_name]

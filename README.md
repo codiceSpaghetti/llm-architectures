@@ -12,21 +12,29 @@ This project provides clean, readable PyTorch implementations of modern large la
 - **Modern Architectures**: Coverage of the latest innovations in transformer design
 - **Easy Navigation**: Consistent structure across all model implementations
 
+## Verification
+
+Test implementations against HuggingFace models:
+
+```bash
+uv run python -m scripts.check_correctness gemma3
+```
+
 ## Supported Architectures
 
 ### Planned Models (Roadmap)
 
-| Model | Status | Key Innovations |
-|-------|--------|----------------|
-| **Gemma 3** | Planned | local/global attn, Normalizer location, GeGLU |
-| **Llama 4** | In Progress | RMSNorm, SwiGLU, RoPE |
-| **Qwen 3** | Planned | Dual chunk attention |
-| **DeepSeek V3/R1** | Planned | Multi-head latent attention, MoE |
-| **OLMo 2** | Planned | Academic transparency focus |
-| **Mistral Small 3.1** | Planned | Sliding window attention |
-| **Qwen 3-Next** | Planned | Next-generation improvements |
-| **SmolLM 3** | Planned | Efficiency optimizations |
-| **Kimi 2** | Planned | Long context handling |
-| **GPT-OSS** | Planned | Open-source GPT variant |
-| **Grok 2.5** | Planned | xAI innovations |
-| **GLM-4.5** | Planned | ChatGLM improvements |
+| Model | Status | Key Innovations | Implementation |
+|-------|--------|----------------|---------------|
+| **Gemma 3** | Done | local/global attn, Normalizer location, GeGLU | [code](llm_architectures/models/gemma3/model.py) |
+| **Qwen 3** | In Progress | Dual chunk attention | Not yet implemented |
+| **Llama 4** | Planned | RMSNorm, SwiGLU, RoPE | Not yet implemented |
+| **DeepSeek V3/R1** | Planned | Multi-head latent attention, MoE | Not yet implemented |
+| **OLMo 2** | Planned | Academic transparency focus | Not yet implemented |
+| **Mistral Small 3.1** | Planned | Sliding window attention | Not yet implemented |
+| **Qwen 3-Next** | Planned | Next-generation improvements | Not yet implemented |
+| **SmolLM 3** | Planned | Efficiency optimizations | Not yet implemented |
+| **Kimi 2** | Planned | Long context handling | Not yet implemented |
+| **GPT-OSS** | Planned | Open-source GPT variant | Not yet implemented |
+| **Grok 2.5** | Planned | xAI innovations | Not yet implemented |
+| **GLM-4.5** | Planned | ChatGLM improvements | Not yet implemented |
