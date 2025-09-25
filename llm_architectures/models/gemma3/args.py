@@ -24,7 +24,7 @@ class Gemma3Config:
     
 
 gemma3_configs = {
-    "4B": Gemma3Config(
+    "google/gemma-3-4b-it": Gemma3Config(
         n_layers=34,
         n_heads=8,
         n_kv_heads=4,
@@ -40,7 +40,7 @@ gemma3_configs = {
         rope_scaling_factor_local=1,
         query_pre_attn_scalar=256,   # ineffective, as it is equal to head_dim
     ),
-    "12B": Gemma3Config(
+    "google/gemma-3-12b-it": Gemma3Config(
         n_layers=48,
         n_heads=16,
         n_kv_heads=8,
@@ -56,7 +56,7 @@ gemma3_configs = {
         rope_scaling_factor_local=1,
         query_pre_attn_scalar=256,
     ),
-    "27B": Gemma3Config(
+    "google/gemma-3-27b-it": Gemma3Config(
         n_layers=62,
         n_heads=32,
         n_kv_heads=16,
