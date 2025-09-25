@@ -1,4 +1,10 @@
 from dataclasses import dataclass
+from enum import Enum
+
+
+class AttentionType(Enum):
+    GLOBAL = "global"
+    LOCAL = "local"
 
 
 @dataclass
@@ -12,7 +18,6 @@ class Gemma3Config:
     head_dim: int = 256
     sliding_window: int = 1024
     vocab_size: int = 128256
-    use_qk_norm: bool = True
     rope_theta_global: int = 1_000_000
     rope_theta_local: int = 10_000
     rope_scaling_factor_global: int = 8
@@ -21,7 +26,8 @@ class Gemma3Config:
     bias: bool = False
     rms_norm_eps: float = 1e-6
     query_pre_attn_scalar: float | None = None
-    
+    attention_type: AttentionType = AttentionType.GLOBAL
+
 
 gemma3_configs = {
     "google/gemma-3-4b-it": Gemma3Config(
@@ -35,10 +41,10 @@ gemma3_configs = {
         sliding_window=1024,
         block_size=8192,
         rope_theta_global=1_000_000,
-        rope_theta_local=10_000,    
+        rope_theta_local=10_000,
         rope_scaling_factor_global=8,
         rope_scaling_factor_local=1,
-        query_pre_attn_scalar=256,   # ineffective, as it is equal to head_dim
+        query_pre_attn_scalar=256,  # ineffective, as it is equal to head_dim
     ),
     "google/gemma-3-12b-it": Gemma3Config(
         n_layers=48,

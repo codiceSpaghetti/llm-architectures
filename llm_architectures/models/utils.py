@@ -9,5 +9,7 @@ def get_torch_dtype(dtype_str: str) -> torch.dtype:
         "float32": torch.float32,
     }
     if dtype_str not in dtype_map:
-        raise ValueError(f"Unsupported dtype: {dtype_str}. Supported: {list(dtype_map.keys())}")
+        raise ValueError(
+            f"Unsupported dtype: {dtype_str}. Supported: {list(dtype_map.keys())}"
+        )
     return dtype_map[dtype_str]
