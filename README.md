@@ -18,8 +18,8 @@ This project provides clean, readable PyTorch implementations of modern large la
 
 | Model | Status | Key Innovations |
 |-------|--------|----------------|
+| **Gemma 3** | Planned | local/global attn, Normalizer location, GeGLU |
 | **Llama 4** | In Progress | RMSNorm, SwiGLU, RoPE |
-| **Gemma 3** | Planned | Normalizer location, GeGLU |
 | **Qwen 3** | Planned | Dual chunk attention |
 | **DeepSeek V3/R1** | Planned | Multi-head latent attention, MoE |
 | **OLMo 2** | Planned | Academic transparency focus |

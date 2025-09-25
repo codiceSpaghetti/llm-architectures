@@ -8,8 +8,7 @@ GEMMA3 IDIOSYNCRASIES (llama as baseline)
 * Different base RoPE frequencies for global and local attention
 * Rope scaling factor only for global attention
 * RMSNorm multiplies the output by (1 + w), not just w
-* Instead of normalizing softmax for sqrt(head_dim), specify a different
-  normalizer (just for 27B variant)
+* Instead of normalizing softmax for sqrt(head_dim), specify a different normalizer (just for 27B variant)
 
 THE DEVIL IS IN THE DETAILS (which caused me headaches)
 * RoPE must be done in float32 and not float16
@@ -27,12 +26,8 @@ from llm_architectures.models.gemma3.args import AttentionType, Gemma3Config
 from llm_architectures.models.utils import get_torch_dtype
 
 
-def precompute_freqs_cis(
-    dim: int, end: int, theta: float = 10000.0, rope_scaling_factor: int = 1
-) -> torch.Tensor:
-    freqs = 1.0 / (
-        theta ** (torch.arange(0, dim, 2)[: (dim // 2)].to(torch.float32) / dim)
-    )
+def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0, rope_scaling_factor: int = 1) -> torch.Tensor:
+    freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].to(torch.float32) / dim))
     freqs = freqs / rope_scaling_factor
     t = torch.arange(end, device=freqs.device)
     freqs = torch.outer(t, freqs).to(torch.float32)
@@ -41,14 +36,10 @@ def precompute_freqs_cis(
 
 
 def apply_rotary_emb(x: torch.Tensor, freqs_cis: torch.Tensor) -> torch.Tensor:
-    x_ = torch.view_as_complex(
-        torch.stack(torch.chunk(x.transpose(1, 2).to(torch.float32), 2, dim=-1), dim=-1)
-    )
+    x_ = torch.view_as_complex(torch.stack(torch.chunk(x.transpose(1, 2).to(torch.float32), 2, dim=-1), dim=-1))
     x_out = torch.view_as_real(x_ * freqs_cis).type_as(x)
     x_out = torch.cat(torch.chunk(x_out, 2, dim=-1), dim=-2)
-    x_out = x_out.reshape(x_out.shape[0], x_out.shape[1], x_out.shape[2], -1).transpose(
-        1, 2
-    )
+    x_out = x_out.reshape(x_out.shape[0], x_out.shape[1], x_out.shape[2], -1).transpose(1, 2)
     return x_out
 
 
@@ -63,9 +54,7 @@ def create_attention_mask(
     # Zero out elements beyond the window size
     # This creates the sliding window by removing distant past tokens
     if window_size is not None and window_size < seq_len:
-        mask = mask & torch.triu(
-            torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=-(window_size - 1)
-        )
+        mask = mask & torch.triu(torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=-(window_size - 1))
     return mask.to(dtype)
 
 
@@ -79,18 +68,10 @@ class Gemma3Attention(nn.Module):
         self.n_rep = self.n_heads // self.n_kv_heads
 
         dtype = get_torch_dtype(config.dtype)
-        self.wq = nn.Linear(
-            config.dim, config.n_heads * self.head_dim, bias=config.bias, dtype=dtype
-        )
-        self.wk = nn.Linear(
-            config.dim, config.n_kv_heads * self.head_dim, bias=config.bias, dtype=dtype
-        )
-        self.wv = nn.Linear(
-            config.dim, config.n_kv_heads * self.head_dim, bias=config.bias, dtype=dtype
-        )
-        self.wo = nn.Linear(
-            config.n_heads * self.head_dim, config.dim, bias=config.bias, dtype=dtype
-        )
+        self.wq = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=config.bias, dtype=dtype)
+        self.wk = nn.Linear(config.dim, config.n_kv_heads * self.head_dim, bias=config.bias, dtype=dtype)
+        self.wv = nn.Linear(config.dim, config.n_kv_heads * self.head_dim, bias=config.bias, dtype=dtype)
+        self.wo = nn.Linear(config.n_heads * self.head_dim, config.dim, bias=config.bias, dtype=dtype)
 
         self.query_pre_attn_scalar = config.query_pre_attn_scalar
 
@@ -104,9 +85,7 @@ class Gemma3Attention(nn.Module):
             self.scaling = self.head_dim**-0.5
 
         if self.attention_type == AttentionType.LOCAL:
-            mask = create_attention_mask(
-                config.block_size, config.sliding_window, dtype
-            )
+            mask = create_attention_mask(config.block_size, config.sliding_window, dtype)
         else:
             mask = create_attention_mask(config.block_size, None, dtype)
 
@@ -140,11 +119,7 @@ class Gemma3Attention(nn.Module):
         scores = F.softmax(scores, dim=-1)
 
         output = torch.matmul(scores, v)
-        output = (
-            output.transpose(1, 2)
-            .contiguous()
-            .view(bsz, seq_len, self.n_heads * self.head_dim)
-        )
+        output = output.transpose(1, 2).contiguous().view(bsz, seq_len, self.n_heads * self.head_dim)
 
         return self.wo(output)
 
@@ -192,15 +167,11 @@ class Gemma3Block(torch.nn.Module):
         self.attention = Gemma3Attention(config)
         self.post_attention_norm = Gemma3RMSNorm(config.dim, config.rms_norm_eps)
         self.pre_ffn_norm = Gemma3RMSNorm(config.dim, config.rms_norm_eps)
-        self.feed_forward = GeGLU(
-            config.dim, config.intermediate_size, bias=config.bias, dtype=dtype
-        )
+        self.feed_forward = GeGLU(config.dim, config.intermediate_size, bias=config.bias, dtype=dtype)
         self.post_ffn_norm = Gemma3RMSNorm(config.dim, config.rms_norm_eps)
 
     def forward(self, x: torch.Tensor, freqs_cis: torch.Tensor) -> torch.Tensor:
-        x = x + self.post_attention_norm(
-            self.attention(self.pre_attention_norm(x), freqs_cis)
-        )
+        x = x + self.post_attention_norm(self.attention(self.pre_attention_norm(x), freqs_cis))
         x = x + self.post_ffn_norm(self.feed_forward(self.pre_ffn_norm(x)))
         return x
 
@@ -213,9 +184,7 @@ class Gemma3(torch.nn.Module):
 
         self.tok_embeddings = nn.Embedding(config.vocab_size, config.dim, dtype=dtype)
 
-        self.register_buffer(
-            "normalizer", torch.tensor(config.dim**0.5, dtype=dtype), persistent=False
-        )
+        self.register_buffer("normalizer", torch.tensor(config.dim**0.5, dtype=dtype), persistent=False)
 
         self.register_buffer(
             "local_freqs_cis",
