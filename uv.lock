@@ -223,7 +223,7 @@ wheels = [
 ]
 
 [[package]]
-name = "learn-llm-architectures"
+name = "llm-architectures"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
