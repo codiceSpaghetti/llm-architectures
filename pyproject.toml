@@ -41,6 +41,13 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+[[tool.mypy.overrides]]
+module = "scripts.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disallow_untyped_decorators = false
+
 [tool.flake8]
 max-line-length = 120
 extend-ignore = ["E203", "W503", "E501"]

@@ -1,5 +1,4 @@
 import argparse
-from typing import Any
 
 import torch
 import torch.nn.functional as F
@@ -12,8 +11,8 @@ from llm_architectures.models.gemma3.state_dict_adapter import Gemma3Converter
 DEFAULT_CHECKPOINTS = {"gemma": "google/gemma-3-4b-it"}
 
 
-@torch.no_grad()  # type: ignore[misc]
-def generate(model: Any, tokenizer: Any, prompt: str, max_tokens: int = 20) -> str:
+@torch.no_grad()
+def generate(model, tokenizer, prompt: str, max_tokens: int = 20):
     inputs = tokenizer(prompt, return_tensors="pt")
     input_ids = inputs["input_ids"]
 
@@ -24,7 +23,7 @@ def generate(model: Any, tokenizer: Any, prompt: str, max_tokens: int = 20) -> s
         if next_token.item() == tokenizer.eos_token_id:
             break
 
-    return str(tokenizer.decode(input_ids[0], skip_special_tokens=True))
+    return tokenizer.decode(input_ids[0], skip_special_tokens=True)
 
 
 def main() -> None:
